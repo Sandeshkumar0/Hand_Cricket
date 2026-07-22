@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react';
 import { db } from '../firebase.js';
-import { remove, update, ref, runTransaction, set } from 'firebase/database';
+import { remove, update, ref, runTransaction, set, get } from 'firebase/database';
 import { useGameRoom } from '../hooks/useGameRoom.js';
 import {
   OVER_OPTIONS, SERIES_OPTIONS, DRAFT_TIMER, SELECTION_TIMER, SUPER_OVER_BALLS,
@@ -371,13 +371,26 @@ export function MultiplayerProvider({ children }) {
       case 'MP_JOIN_ROOM': {
         const name = action.payload?.name;
         const code = action.payload.code.toUpperCase();
-        // Basic join
-        setLocalState(s => ({ ...s, roomCode: code, notice: null }));
-        // Can't await here directly but we run it
-        update(ref(db), {
-          [`rooms/${code}/players/${localState.userId}`]: {
-            id: localState.userId, name: name || 'Player', emoji: getPlayerEmojiForId(localState.userId), isBot: false, isReady: false, isOnline: true
+        get(ref(db, `rooms/${code}`)).then((snapshot) => {
+          if (!snapshot.exists()) {
+            setLocalState(s => ({ ...s, roomCode: '', notice: `Room ${code} does not exist. Please check the code.` }));
+            return;
           }
+          const val = snapshot.val();
+          const currentPlayers = val.players ? Object.keys(val.players).length : 0;
+          const maxPlayers = val.settings?.maxPlayers || 22;
+          if (currentPlayers >= maxPlayers && !val.players?.[localState.userId]) {
+            setLocalState(s => ({ ...s, roomCode: '', notice: `Room ${code} is full (${currentPlayers}/${maxPlayers}).` }));
+            return;
+          }
+          setLocalState(s => ({ ...s, roomCode: code, notice: null }));
+          update(ref(db), {
+            [`rooms/${code}/players/${localState.userId}`]: {
+              id: localState.userId, name: name || 'Player', emoji: getPlayerEmojiForId(localState.userId), isBot: false, isReady: false, isOnline: true
+            }
+          });
+        }).catch((err) => {
+          setLocalState(s => ({ ...s, roomCode: '', notice: `Failed to join room: ${err.message}` }));
         });
         break;
       }

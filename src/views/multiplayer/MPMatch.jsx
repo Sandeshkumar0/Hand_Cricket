@@ -3,7 +3,11 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowRight, Zap } from 'lucide-react';
 import { CricketBallIcon, CricketBatIcon } from '../../components/CricketIcons';
 import NumberPad from '../../components/NumberPad';
+import MatchSummaryDashboard from '../../components/MatchSummaryDashboard';
+import ManOfTheMatchCard from '../../components/ManOfTheMatchCard';
 import { useMultiplayer } from '../../context/MultiplayerContext';
+import { determineManOfTheMatch } from '../../utils/pointsCalculator';
+import { updateCareerAfterMatch } from '../../utils/statsStorage';
 
 const formatOvers = (balls) => `${Math.floor(balls / 6)}.${balls % 6}`;
 const MOVE_OPTIONS = [0, 1, 2, 3, 4, 5, 6];
@@ -82,6 +86,8 @@ function MPMatch() {
     hostId,
   } = state;
 
+  const [matchEndStep, setMatchEndStep] = React.useState('summary'); // 'summary' | 'motm' | 'result'
+  const [motmDetails, setMotmDetails] = React.useState(null);
   const batter = players[activeBatterId];
   const bowler = players[activeBowlerId];
   const oversLimit = settings.oversPerInnings;
@@ -197,6 +203,53 @@ function MPMatch() {
   /* ─── MATCH RESULT ─── */
   if (phase === 'MP_MATCH_RESULT') {
     const actionLabel = seriesWinner ? 'View Series Result' : 'Next Match';
+
+    // Format matchStats structure for components
+    const myStats = state.playerStats?.[currentPlayerId] || { runs: 0, ballsFaced: 0, wickets: 0, dotBalls: 0, fours: 0, sixes: 0 };
+    const opponentId = Object.keys(state.playerStats || {}).find(id => id !== currentPlayerId) || 'bot';
+    const oppStats = state.playerStats?.[opponentId] || { runs: 0, ballsFaced: 0, wickets: 0, dotBalls: 0, fours: 0, sixes: 0 };
+
+    const formattedMatchStats = {
+      player: { ...myStats, dismissals: myStats.wickets || 0 },
+      bot: { ...oppStats, dismissals: oppStats.wickets || 0 },
+    };
+
+    if (matchEndStep === 'summary') {
+      return (
+        <MatchSummaryDashboard
+          matchStats={formattedMatchStats}
+          ballLog={ballLog}
+          matchSettings={{ current_match: settings.currentMatch, series_length: settings.seriesLength }}
+          onProceedToMotm={() => {
+            const motm = determineManOfTheMatch({
+              playerStats: formattedMatchStats.player,
+              botStats: formattedMatchStats.bot,
+              playerWon: resultMeta?.winner === (state.teams?.teamA?.roster?.includes(currentPlayerId) ? 'teamA' : 'teamB'),
+            });
+            setMotmDetails(motm);
+            // Save & accumulate career stats in localStorage for local user from Multiplayer match!
+            updateCareerAfterMatch({
+              playerMatchStats: formattedMatchStats.player,
+              botMatchStats: formattedMatchStats.bot,
+              motmWinner: motm.motmWinner,
+              playerWon: resultMeta?.winner === (state.teams?.teamA?.roster?.includes(currentPlayerId) ? 'teamA' : 'teamB'),
+            });
+            setMatchEndStep('motm');
+          }}
+        />
+      );
+    }
+
+    if (matchEndStep === 'motm') {
+      return (
+        <ManOfTheMatchCard
+          motmInfo={motmDetails}
+          playerStats={formattedMatchStats.player}
+          botStats={formattedMatchStats.bot}
+          onContinueToResult={() => setMatchEndStep('result')}
+        />
+      );
+    }
 
     return (
       <div className="flex flex-1 flex-col items-center overflow-y-auto bg-arena-surface px-4 py-6 text-center">

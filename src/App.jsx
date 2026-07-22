@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowLeft, MessageSquare, User } from 'lucide-react';
+import { ArrowLeft, MessageSquare, User, Volume2, VolumeX } from 'lucide-react';
 import { useGame } from './context/GameContext';
 import { useMultiplayer } from './context/MultiplayerContext';
 import MainMenu from './views/MainMenu';
@@ -25,6 +25,9 @@ import SuperOverSetup from './views/multiplayer/SuperOverSetup';
 import SuperOverReveal from './views/multiplayer/SuperOverReveal';
 import SuperOverMatch from './views/multiplayer/SuperOverMatch';
 import TeamChatWidget from './views/multiplayer/TeamChatWidget';
+import PlayerProfileModal from './components/PlayerProfileModal';
+import { loadAllCareerStats } from './utils/statsStorage';
+import { soundEngine } from './utils/audio';
 
 const TEAM_CHAT_PHASES = new Set([
   'MP_MATCH_TOSS',
@@ -49,6 +52,18 @@ function App() {
   const { state, dispatch: gameDispatch } = useGame();
   const { state: mpState, dispatch: mpDispatch } = useMultiplayer();
   const [teamChatOpen, setTeamChatOpen] = useState(false);
+  const [profileModalOpen, setProfileModalOpen] = useState(false);
+  const careerStats = loadAllCareerStats();
+
+  const [isMuted, setIsMuted] = useState(soundEngine.muted);
+
+  const toggleSound = () => {
+    const nextMuted = soundEngine.toggleMute();
+    setIsMuted(nextMuted);
+    if (!nextMuted) {
+      soundEngine.playUiClick();
+    }
+  };
 
   const currentTeam = useMemo(() => {
     if (mpState.teams?.teamA?.roster?.includes(mpState.currentPlayerId)) return 'teamA';
@@ -86,6 +101,7 @@ function App() {
   }, [mpState.phase, state.currentPhase]);
 
   const handleBack = () => {
+    soundEngine.playUiClick();
     switch (backConfig?.action) {
       case 'mp-main-menu':
         mpDispatch({ type: 'MP_BACK_TO_GATEWAY' });
@@ -171,8 +187,6 @@ function App() {
     }
   };
 
-  // Group related phases under the same key so AnimatePresence doesn't
-  // remount the entire view on sub-phase transitions (e.g. MATCH → RESOLVE_MOVE).
   const getViewKey = () => {
     if (mpState.phase !== 'MP_GATEWAY') {
       const mp = mpState.phase;
@@ -204,63 +218,99 @@ function App() {
   const showNavbar = viewKey !== 'MAIN_MENU' && viewKey !== 'MP_GATEWAY';
 
   return (
-    <div className="relative flex min-h-[100dvh] w-full flex-col bg-arena-void text-arena-on-surface">
-      {/* ─── Top Navbar ─── */}
+    <div className="relative flex min-h-[100dvh] w-full flex-col bg-[#040711] text-slate-100 font-sans">
+      {/* Top Navbar */}
       {showNavbar && (
-        <header className="relative z-30 flex items-center justify-between border-b border-arena-outline-variant/15 bg-arena-surface px-4 py-3 sm:px-6">
-          <div className="flex items-center gap-3">
-            {backConfig && (
-              <button
-                onClick={handleBack}
-                className="inline-flex h-9 items-center gap-2 rounded-md border border-arena-outline-variant/20 bg-arena-container px-3 text-xs font-bold uppercase tracking-broadcast text-arena-on-surface-dim transition hover:text-white"
-              >
-                <ArrowLeft size={15} />
-                <span className="hidden sm:inline">{backConfig.label}</span>
-              </button>
-            )}
-            <h1 className="esports-headline text-lg tracking-esports text-arena-primary">
-              Hand Cricket
-            </h1>
-          </div>
-          <div className="flex items-center gap-3">
-            {mpState.phase !== 'MP_GATEWAY' && (
-              <span className="rounded-md bg-blue-500/15 px-3 py-1 font-display text-[10px] font-bold uppercase tracking-broadcast text-blue-400">
-                Multiplayer
-              </span>
-            )}
-            {canOpenTeamChat && (
-              <button
-                onClick={() => setTeamChatOpen(true)}
-                className="inline-flex h-9 items-center gap-2 rounded-md border border-arena-primary/25 bg-arena-primary/10 px-3 text-xs font-bold uppercase tracking-broadcast text-arena-primary transition hover:bg-arena-primary/15"
-              >
-                <MessageSquare size={15} />
-                <span className="hidden sm:inline">
-                  {currentTeam === 'teamA' ? 'Team A Chat' : 'Team B Chat'}
+        <header className="relative z-30 apple-glass border-b border-white/10 px-4 py-2.5 sm:px-6">
+          <div className="bmw-m-stripe absolute top-0 left-0 right-0 h-0.5" />
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              {backConfig && (
+                <button
+                  type="button"
+                  onClick={handleBack}
+                  className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-slate-900/90 border border-white/10 text-xs font-mono font-bold text-slate-300 hover:text-white transition"
+                >
+                  <ArrowLeft size={14} />
+                  <span>{backConfig.label}</span>
+                </button>
+              )}
+              <div className="flex items-center space-x-2">
+                <h1 className="esports-headline text-lg font-black tracking-wide text-white">
+                  HAND <span className="text-blue-400">CRICKET</span>
+                </h1>
+                <span className="hidden sm:inline px-2 py-0.5 text-[9px] font-mono font-bold rounded bg-blue-500/20 text-blue-300 border border-blue-400/30">
+                  PRO ARENA
                 </span>
+              </div>
+            </div>
+
+            <div className="flex items-center space-x-3">
+              <button
+                type="button"
+                onClick={toggleSound}
+                className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-slate-900/90 border border-white/10 text-xs font-mono font-bold text-slate-300 hover:text-white transition"
+              >
+                {isMuted ? <VolumeX size={14} className="text-red-400" /> : <Volume2 size={14} className="text-cyan-400" />}
+                <span className="hidden sm:inline">{isMuted ? 'MUTED' : 'AUDIO ON'}</span>
               </button>
-            )}
-            <div className="flex h-8 w-8 items-center justify-center rounded-md bg-arena-primary/20 text-arena-primary">
-              <User size={16} />
+
+              <button
+                type="button"
+                onClick={() => {
+                  soundEngine.playUiClick();
+                  setProfileModalOpen(true);
+                }}
+                className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-blue-500/20 border border-blue-400/30 text-xs font-mono font-bold text-blue-300 hover:bg-blue-500/30 transition"
+              >
+                <User size={14} />
+                <span>PROFILE STATS</span>
+              </button>
+
+              {mpState.phase !== 'MP_GATEWAY' && (
+                <span className="rounded-md bg-amber-500/20 px-2.5 py-1 font-mono text-[10px] font-bold text-amber-300 border border-amber-500/30">
+                  MULTIPLAYER
+                </span>
+              )}
+              {canOpenTeamChat && (
+                <button
+                  type="button"
+                  onClick={() => setTeamChatOpen(true)}
+                  className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-blue-500/20 border border-blue-400/30 text-xs font-mono font-bold text-blue-300 hover:bg-blue-500/30 transition"
+                >
+                  <MessageSquare size={14} />
+                  <span className="hidden sm:inline">
+                    {currentTeam === 'teamA' ? 'TEAM A CHAT' : 'TEAM B CHAT'}
+                  </span>
+                </button>
+              )}
             </div>
           </div>
         </header>
       )}
 
-      {/* ─── Main Content ─── */}
+      {/* Main View Container */}
       <div className="relative flex flex-1 overflow-hidden">
         <AnimatePresence mode="wait">
           <motion.div
             key={viewKey}
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -12 }}
-            transition={{ duration: 0.3, ease: 'easeOut' }}
+            initial={{ opacity: 0, scale: 0.99 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 1.01 }}
+            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
             className="relative z-10 flex min-h-0 w-full flex-1 flex-col"
           >
             {renderPhase()}
           </motion.div>
         </AnimatePresence>
       </div>
+
+      <PlayerProfileModal
+        open={profileModalOpen}
+        onClose={() => setProfileModalOpen(false)}
+        playerStats={careerStats.player}
+      />
+
       {mpState.phase !== 'MP_GATEWAY' && (
         <TeamChatWidget open={canOpenTeamChat && teamChatOpen} onClose={() => setTeamChatOpen(false)} />
       )}
@@ -275,66 +325,43 @@ function MPSeriesResult() {
   const isHost = currentPlayerId === hostId;
 
   const winnerLabel = seriesWinner === 'teamA' ? 'Team A' : 'Team B';
-  const capA = players[captains.teamA];
-  const capB = players[captains.teamB];
 
   return (
-    <div className="relative flex flex-1 flex-col items-center overflow-y-auto bg-arena-surface px-4 pb-8 pt-6 sm:px-6">
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(90,240,179,0.08),transparent_50%)]" />
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="relative z-10 w-full max-w-lg"
-      >
-        <div className="text-center">
-          <span className="inline-block rounded-md border border-arena-outline-variant/30 bg-arena-container px-4 py-1.5 font-display text-xs font-bold uppercase tracking-broadcast text-arena-on-surface-dim">
-            Series {seriesScores.teamA}-{seriesScores.teamB}
-          </span>
-        </div>
-
-        <h2 className="esports-headline mt-5 text-center text-3xl tracking-esports text-white sm:text-4xl">
-          {winnerLabel} Wins The Series!
+    <div className="relative flex flex-1 flex-col items-center overflow-y-auto bg-[#040711] px-4 pb-8 pt-6">
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="relative z-10 w-full max-w-lg mt-4 text-center">
+        <span className="px-3 py-1 rounded-full bg-slate-900 border border-white/10 text-xs font-mono font-bold text-slate-300 uppercase">
+          MULTIPLAYER SERIES: {seriesScores.teamA} - {seriesScores.teamB}
+        </span>
+        <h2 className="esports-headline mt-3 text-4xl sm:text-5xl font-black text-white">
+          🏆 {winnerLabel.toUpperCase()} WINS SERIES!
         </h2>
-        <p className="mt-3 text-center font-display text-sm uppercase tracking-broadcast text-arena-on-surface-faint">
-          Best of {settings.seriesLength} completed.
-        </p>
 
-        <div className="mt-6 arena-panel rounded-xl overflow-hidden">
-          <div className="p-5">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="text-center">
-                <p className="font-display text-[10px] uppercase tracking-broadcast text-arena-primary">Team A</p>
-                <p className="mt-1 font-display text-xs text-arena-on-surface-faint">{capA?.name}</p>
-                <div className="mx-auto mt-1 h-0.5 w-12 rounded bg-arena-primary" />
-                <p className="mt-4 font-display text-5xl font-bold text-white">{seriesScores.teamA}</p>
-              </div>
-              <div className="text-center">
-                <p className="font-display text-[10px] uppercase tracking-broadcast text-blue-400">Team B</p>
-                <p className="mt-1 font-display text-xs text-arena-on-surface-faint">{capB?.name}</p>
-                <div className="mx-auto mt-1 h-0.5 w-12 rounded bg-blue-400" />
-                <p className="mt-4 font-display text-5xl font-bold text-arena-on-surface-dim">{seriesScores.teamB}</p>
-              </div>
+        <div className="mt-8 apple-glass-card rounded-2xl p-6 border border-white/10">
+          <div className="grid grid-cols-2 gap-4 border-b border-white/10 pb-6">
+            <div>
+              <p className="font-mono text-xs font-bold text-blue-400 uppercase">TEAM A</p>
+              <p className="mt-2 font-mono text-5xl font-black text-white">{seriesScores.teamA}</p>
+            </div>
+            <div>
+              <p className="font-mono text-xs font-bold text-amber-400 uppercase">TEAM B</p>
+              <p className="mt-2 font-mono text-5xl font-black text-white">{seriesScores.teamB}</p>
             </div>
           </div>
 
-          <div className="border-t border-arena-outline-variant/15 px-5 py-4">
-            <h4 className="esports-headline text-xs tracking-esports text-arena-on-surface-dim">Match Breakdown</h4>
-            <div className="mt-3 space-y-2.5">
+          <div className="pt-6 text-left">
+            <h4 className="font-mono text-xs font-bold uppercase tracking-widest text-slate-400 mb-3">MATCH BREAKDOWN</h4>
+            <div className="space-y-2.5">
               {matchResults.map((match) => (
-                <div key={match.matchNumber} className="flex items-center justify-between rounded-lg bg-arena-container-highest px-4 py-3">
+                <div key={match.matchNumber} className="flex items-center justify-between p-3.5 rounded-xl bg-slate-900/80 border border-white/5 font-mono text-xs">
                   <div>
-                    <p className="font-display text-[10px] uppercase tracking-broadcast text-arena-on-surface-faint">
-                      Match {match.matchNumber}
-                    </p>
-                    <p className={`mt-1 font-display text-sm font-bold ${
-                      match.winner === 'teamA' ? 'text-arena-primary' : 'text-blue-400'
-                    }`}>
-                      {match.winner === 'teamA' ? 'Team A won' : 'Team B won'}
+                    <span className="text-slate-500">MATCH {match.matchNumber}</span>
+                    <p className={match.winner === 'teamA' ? 'text-blue-400 font-bold' : 'text-amber-400 font-bold'}>
+                      {match.winner === 'teamA' ? 'TEAM A WON' : 'TEAM B WON'}
                     </p>
                   </div>
-                  <div className="text-right">
-                    <p className="text-xs text-arena-on-surface-dim">{match.teamAScore}</p>
-                    <p className="text-xs text-arena-on-surface-faint">{match.teamBScore}</p>
+                  <div className="text-right text-slate-300">
+                    <div>{match.teamAScore}</div>
+                    <div className="text-slate-500">{match.teamBScore}</div>
                   </div>
                 </div>
               ))}
@@ -345,22 +372,20 @@ function MPSeriesResult() {
         <div className="mt-6 flex flex-col gap-3">
           {isHost ? (
             <button
-              onClick={() => dispatch({ type: 'MP_RESET' })}
-              className="tactile-btn flex w-full items-center justify-center gap-3 rounded-lg px-6 py-4 text-base"
+              type="button"
+              onClick={() => {
+                soundEngine.playUiClick();
+                dispatch({ type: 'MP_RESET' });
+              }}
+              className="tactile-btn w-full py-4 text-base font-black tracking-wider"
             >
-              New Series
+              START NEW MULTIPLAYER SERIES
             </button>
           ) : (
-            <div className="rounded-lg border border-arena-outline-variant/20 bg-arena-container px-5 py-3 text-sm text-arena-on-surface-faint text-center">
-              Waiting for host to start a new series...
+            <div className="rounded-xl border border-white/10 bg-slate-900 p-4 text-xs font-mono text-slate-400">
+              WAITING FOR HOST TO START NEW SERIES...
             </div>
           )}
-          <button
-            onClick={() => dispatch({ type: 'MP_BACK_TO_GATEWAY' })}
-            className="font-display text-xs uppercase tracking-broadcast text-arena-on-surface-faint hover:text-arena-on-surface-dim transition text-center"
-          >
-            Main Menu
-          </button>
         </div>
       </motion.div>
     </div>
