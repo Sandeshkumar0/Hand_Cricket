@@ -4,8 +4,24 @@
 
 :root {
   color-scheme: dark;
-  font-family: 'Inter', sans-serif;
-  background: #070d1f;
+  font-family: 'SF Pro Display', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: #040711;
+  color: #f1f5f9;
+
+  /* Design Tokens - Apple + PlayStation + BMW M */
+  --apple-blue: #0066cc;
+  --apple-glass-bg: rgba(18, 24, 38, 0.72);
+  --apple-glass-border: rgba(255, 255, 255, 0.12);
+  
+  --ps-blue: #0070d1;
+  --ps-blue-glow: rgba(0, 112, 209, 0.4);
+  --ps-gold-start: #ffce21;
+  --ps-gold-end: #ee8e00;
+
+  --m-cyan: #0066b1;
+  --m-navy: #1c69d4;
+  --m-red: #e22718;
+  --m-carbon: #12141a;
 }
 
 * {
@@ -16,6 +32,7 @@ html,
 body,
 #root {
   min-height: 100%;
+  background: #040711;
 }
 
 body {
@@ -23,8 +40,8 @@ body {
   min-height: 100vh;
   overflow-x: hidden;
   overflow-y: auto;
-  background: #070d1f;
-  color: #e2e8f0;
+  background: radial-gradient(circle at 50% 0%, #0c1836 0%, #040711 70%);
+  color: #f1f5f9;
 }
 
 button,
@@ -34,146 +51,261 @@ textarea {
   font: inherit;
 }
 
-/* ─── eSports Display Headlines ─── */
+/* ─── BMW M Tricolor Stripe ─── */
+.bmw-m-stripe {
+  background: linear-gradient(90deg, var(--m-cyan) 0%, var(--m-cyan) 33%, var(--m-navy) 33%, var(--m-navy) 66%, var(--m-red) 66%, var(--m-red) 100%);
+  height: 3px;
+  width: 100%;
+}
+
+.bmw-m-stripe-vertical {
+  background: linear-gradient(180deg, var(--m-cyan) 0%, var(--m-cyan) 33%, var(--m-navy) 33%, var(--m-navy) 66%, var(--m-red) 66%, var(--m-red) 100%);
+  width: 4px;
+}
+
+/* ─── Carbon Fiber Mesh Texture ─── */
+.bmw-carbon-mesh {
+  background-color: #0b0e17;
+  background-image: 
+    radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 0),
+    linear-gradient(45deg, rgba(0, 0, 0, 0.4) 25%, transparent 25%, transparent 75%, rgba(0, 0, 0, 0.4) 75%, rgba(0, 0, 0, 0.4)),
+    linear-gradient(45deg, rgba(0, 0, 0, 0.4) 25%, transparent 25%, transparent 75%, rgba(0, 0, 0, 0.4) 75%, rgba(0, 0, 0, 0.4));
+  background-size: 16px 16px, 8px 8px, 8px 8px;
+  background-position: 0 0, 0 0, 4px 4px;
+}
+
+/* ─── Apple Precision Glassmorphism ─── */
+.apple-glass {
+  background: var(--apple-glass-bg);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid var(--apple-glass-border);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.apple-glass-card {
+  background: rgba(22, 30, 48, 0.6);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.apple-glass-card:hover {
+  border-color: rgba(0, 112, 209, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 20px 40px rgba(0, 112, 209, 0.15);
+}
+
+/* ─── PlayStation DualSense Lightbar ─── */
+.ps-lightbar-blue {
+  background: linear-gradient(90deg, rgba(0, 112, 209, 0) 0%, rgba(0, 112, 209, 0.8) 50%, rgba(0, 112, 209, 0) 100%);
+  box-shadow: 0 0 25px rgba(0, 112, 209, 0.8), 0 0 50px rgba(0, 112, 209, 0.4);
+}
+
+.ps-lightbar-red {
+  background: linear-gradient(90deg, rgba(226, 39, 24, 0) 0%, rgba(226, 39, 24, 0.9) 50%, rgba(226, 39, 24, 0) 100%);
+  box-shadow: 0 0 25px rgba(226, 39, 24, 0.8), 0 0 50px rgba(226, 39, 24, 0.4);
+}
+
+.ps-lightbar-gold {
+  background: linear-gradient(90deg, rgba(255, 206, 33, 0) 0%, rgba(255, 206, 33, 0.9) 50%, rgba(255, 206, 33, 0) 100%);
+  box-shadow: 0 0 25px rgba(255, 206, 33, 0.8), 0 0 50px rgba(255, 206, 33, 0.4);
+}
+
+/* ─── Stadium Ambient Spotlight Keyframe ─── */
+.stadium-spotlight {
+  position: absolute;
+  top: -150px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 1000px;
+  height: 600px;
+  background: radial-gradient(ellipse at center, rgba(0, 112, 209, 0.18) 0%, rgba(0, 102, 177, 0.05) 50%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ─── eSports Headlines & Typography ─── */
 .esports-headline {
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Space Grotesk', 'SF Pro Display', sans-serif;
   font-weight: 700;
   font-style: italic;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
 }
 
 /* ─── Arena Panels ─── */
 .arena-panel {
-  background: #151b2d;
-  border: 1px solid rgba(60, 74, 66, 0.15);
-  box-shadow: 0 30px 50px rgba(0, 0, 0, 0.25);
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
 }
 
 .arena-panel-high {
-  background: #232938;
-  border: 1px solid rgba(60, 74, 66, 0.15);
+  background: rgba(30, 41, 59, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.12);
 }
 
 .arena-panel-highest {
-  background: #2e3447;
-  border: 1px solid rgba(60, 74, 66, 0.15);
+  background: rgba(47, 63, 86, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
-/* ─── Clash Zones (recessed play areas) ─── */
 .clash-zone {
-  background: #151b2d;
-  box-shadow: inset 0 4px 12px rgba(0, 0, 0, 0.5);
+  background: rgba(10, 16, 30, 0.8);
+  box-shadow: inset 0 4px 20px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.05);
 }
 
 /* ─── Tactile 3D Buttons ─── */
 .tactile-btn {
-  background: linear-gradient(135deg, #5af0b3, #34d399);
-  color: #0c1324;
+  background: linear-gradient(135deg, #0070d1, #005bb5);
+  color: #ffffff;
   font-family: 'Space Grotesk', sans-serif;
   font-weight: 700;
   font-style: italic;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  border-radius: 0.375rem;
-  box-shadow: 0 4px 0 #1a8a5e;
-  transition: all 0.1s ease;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 0 #004387, 0 8px 16px rgba(0, 112, 209, 0.3);
+  transition: all 0.12s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .tactile-btn:active {
-  box-shadow: 0 2px 0 #1a8a5e;
-  transform: translateY(2px);
+  box-shadow: 0 1px 0 #004387;
+  transform: translateY(3px);
 }
 
 .tactile-btn:hover {
-  filter: brightness(1.08);
+  filter: brightness(1.12);
 }
 
 .tactile-btn-danger {
-  background: linear-gradient(135deg, #ef4444, #dc2626);
+  background: linear-gradient(135deg, #e22718, #b91c1c);
   color: white;
   font-family: 'Space Grotesk', sans-serif;
   font-weight: 700;
   font-style: italic;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  border-radius: 0.375rem;
-  box-shadow: 0 4px 0 #991b1b;
-  transition: all 0.1s ease;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 0 #7f1d1d, 0 8px 16px rgba(226, 39, 24, 0.3);
+  transition: all 0.12s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .tactile-btn-danger:active {
-  box-shadow: 0 2px 0 #991b1b;
-  transform: translateY(2px);
+  box-shadow: 0 1px 0 #7f1d1d;
+  transform: translateY(3px);
 }
 
-/* ─── Stat Chips ─── */
+.tactile-btn-secondary {
+  background: linear-gradient(135deg, #1e293b, #0f172a);
+  color: #f1f5f9;
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-style: italic;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 0 #020617;
+  transition: all 0.12s ease;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.tactile-btn-secondary:active {
+  box-shadow: 0 1px 0 #020617;
+  transform: translateY(3px);
+}
+
+.tactile-btn-amber {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: #0c1324;
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-style: italic;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 0 #92400e;
+  transition: all 0.12s ease;
+}
+
+.tactile-btn-amber:active {
+  box-shadow: 0 1px 0 #92400e;
+  transform: translateY(3px);
+}
+
+/* ─── Hand Gesture & Number Pad Buttons ─── */
+.num-pad-btn {
+  background: rgba(30, 41, 59, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #f8fafc;
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 1.5rem;
+  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  border-radius: 0.75rem;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+.num-pad-btn:hover {
+  background: rgba(51, 65, 85, 0.9);
+  border-color: rgba(0, 112, 209, 0.5);
+  box-shadow: 0 8px 20px rgba(0, 112, 209, 0.25);
+  transform: translateY(-2px);
+}
+
+.num-pad-btn:active {
+  transform: translateY(1px) scale(0.98);
+}
+
+.num-pad-btn.selected {
+  border-color: var(--ps-blue);
+  background: rgba(0, 112, 209, 0.25);
+  color: #ffffff;
+  box-shadow: 0 0 24px rgba(0, 112, 209, 0.5);
+}
+
+/* ─── Shift-Light Indicator LEDs (BMW M Style) ─── */
+.shift-light-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #334155;
+  transition: all 0.2s ease;
+}
+
+.shift-light-dot.cyan {
+  background: var(--m-cyan);
+  box-shadow: 0 0 8px var(--m-cyan);
+}
+
+.shift-light-dot.yellow {
+  background: #f59e0b;
+  box-shadow: 0 0 8px #f59e0b;
+}
+
+.shift-light-dot.red {
+  background: var(--m-red);
+  box-shadow: 0 0 10px var(--m-red);
+}
+
+/* ─── Stat Chips & Ball Chips ─── */
 .stat-chip {
-  border: 1px solid rgba(133, 148, 139, 0.2);
-  background: transparent;
-  font-family: 'Inter', sans-serif;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(15, 23, 42, 0.6);
+  font-family: 'Space Grotesk', sans-serif;
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.12em;
   padding: 0.375rem 0.75rem;
-  border-radius: 0.375rem;
-}
-
-/* ─── Number Pad Buttons ─── */
-.num-pad-btn {
-  background: #2e3447;
-  border: 1px solid rgba(60, 74, 66, 0.15);
-  color: #e2e8f0;
-  font-family: 'Space Grotesk', sans-serif;
-  font-weight: 700;
-  font-size: 1.5rem;
-  transition: all 0.15s ease;
   border-radius: 0.5rem;
 }
 
-.num-pad-btn:hover {
-  background: #3a4058;
-  border-color: rgba(90, 240, 179, 0.3);
-}
-
-.num-pad-btn:active {
-  transform: scale(0.96);
-}
-
-.num-pad-btn.selected {
-  border-color: #5af0b3;
-  background: rgba(90, 240, 179, 0.1);
-  color: #5af0b3;
-}
-
-/* ─── Neon Text Effects ─── */
-.neon-text-primary {
-  color: #5af0b3;
-  text-shadow: 0 0 20px rgba(90, 240, 179, 0.5), 0 0 40px rgba(90, 240, 179, 0.3);
-}
-
-.neon-text-danger {
-  color: #ffb3ad;
-  text-shadow: 0 0 20px rgba(255, 179, 173, 0.5), 0 0 40px rgba(255, 179, 173, 0.3);
-}
-
-.neon-text-out {
-  color: #ffb3ad;
-  text-shadow: 0 0 40px rgba(255, 179, 173, 0.6), 0 0 80px rgba(255, 179, 173, 0.4), 0 0 120px rgba(255, 179, 173, 0.2);
-}
-
-/* ─── Left Accent Bar ─── */
-.accent-bar-left {
-  border-left: 3px solid #5af0b3;
-  padding-left: 1rem;
-}
-
-.accent-bar-left-danger {
-  border-left: 3px solid #ffb3ad;
-  padding-left: 1rem;
-}
-
-/* ─── Ball Chips ─── */
 .ball-chip {
   display: flex;
   align-items: center;
@@ -186,80 +318,40 @@ textarea {
 }
 
 .ball-chip-runs {
-  background: rgba(90, 240, 179, 0.1);
-  border-bottom: 2px solid #5af0b3;
-  color: #5af0b3;
+  background: rgba(0, 112, 209, 0.15);
+  border-bottom: 2px solid var(--ps-blue);
+  color: #38bdf8;
 }
 
 .ball-chip-wicket {
-  background: rgba(255, 179, 173, 0.1);
-  border-bottom: 2px solid #ffb3ad;
-  color: #ffb3ad;
+  background: rgba(226, 39, 24, 0.15);
+  border-bottom: 2px solid var(--m-red);
+  color: #fca5a5;
 }
 
 .ball-chip-dot {
   background: rgba(148, 163, 184, 0.08);
   border-bottom: 2px solid #64748b;
-  color: #64748b;
+  color: #94a3b8;
 }
 
-/* ─── Scrollbar ─── */
-::-webkit-scrollbar {
-  width: 6px;
+/* ─── Neon Text Effects ─── */
+.neon-text-primary {
+  color: #38bdf8;
+  text-shadow: 0 0 20px rgba(56, 189, 248, 0.6), 0 0 40px rgba(56, 189, 248, 0.3);
 }
 
-::-webkit-scrollbar-track {
-  background: transparent;
+.neon-text-danger {
+  color: #fca5a5;
+  text-shadow: 0 0 20px rgba(226, 39, 24, 0.6), 0 0 40px rgba(226, 39, 24, 0.3);
 }
 
-::-webkit-scrollbar-thumb {
-  background: rgba(90, 240, 179, 0.15);
-  border-radius: 3px;
+.neon-text-out {
+  color: #ff8080;
+  text-shadow: 0 0 40px rgba(226, 39, 24, 0.8), 0 0 80px rgba(226, 39, 24, 0.5);
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(90, 240, 179, 0.3);
-}
-
-/* ─── Animations ─── */
-.coin-orbit {
-  animation: coin-flip 2.8s ease-in-out infinite;
-}
-
-.danger-shake {
-  animation: danger-shake 0.45s ease;
-}
-
-@keyframes coin-flip {
-  0%,
-  100% {
-    transform: rotateY(0deg) translateY(0);
-  }
-  50% {
-    transform: rotateY(180deg) translateY(-6px);
-  }
-}
-
-@keyframes danger-shake {
-  0%,
-  100% {
-    transform: translateX(0);
-  }
-  20% {
-    transform: translateX(-6px);
-  }
-  40% {
-    transform: translateX(6px);
-  }
-  60% {
-    transform: translateX(-5px);
-  }
-  80% {
-    transform: translateX(5px);
-  }
-}
-
-/* ─── Progress Bars ─── */
+/* ─── Progress & Gauges ─── */
 .progress-bar {
   height: 6px;
   background: rgba(255, 255, 255, 0.08);
@@ -269,42 +361,53 @@ textarea {
 
 .progress-fill-primary {
   height: 100%;
-  background: linear-gradient(90deg, #5af0b3, #34d399);
+  background: linear-gradient(90deg, var(--m-cyan), var(--ps-blue));
   border-radius: 3px;
   transition: width 0.5s ease;
 }
 
 .progress-fill-danger {
   height: 100%;
-  background: linear-gradient(90deg, #ef4444, #ffb3ad);
+  background: linear-gradient(90deg, #f59e0b, var(--m-red));
   border-radius: 3px;
   transition: width 0.5s ease;
 }
 
-/* ─── Ghost Border Cards ─── */
-.ghost-card {
-  border: 1px solid rgba(60, 74, 66, 0.15);
+/* ─── Room Code Cells ─── */
+.room-code-cell {
+  width: 3.5rem;
+  height: 4rem;
+  background: rgba(30, 41, 59, 0.9);
+  border: 2px solid rgba(255, 255, 255, 0.2);
   border-radius: 0.5rem;
+  color: #f8fafc;
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 1.5rem;
+  text-align: center;
+  text-transform: uppercase;
+  outline: none;
+  transition: all 0.2s ease;
 }
 
-/* ─── Shot Clock Ring ─── */
-.shot-clock-ring {
-  transform: scaleX(-1);
+.room-code-cell:focus {
+  border-color: var(--ps-blue);
+  box-shadow: 0 0 20px rgba(0, 112, 209, 0.4);
 }
 
 /* ─── Draft Card ─── */
 .draft-card {
-  background: #1a2137;
-  border: 1px solid rgba(60, 74, 66, 0.15);
+  background: rgba(30, 41, 59, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 0.75rem;
   padding: 0.75rem;
-  transition: all 0.2s ease;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   cursor: pointer;
 }
 
 .draft-card:hover {
-  border-color: rgba(90, 240, 179, 0.4);
-  box-shadow: 0 0 20px rgba(90, 240, 179, 0.1);
+  border-color: var(--ps-blue);
+  box-shadow: 0 8px 24px rgba(0, 112, 209, 0.25);
   transform: translateY(-2px);
 }
 
@@ -313,7 +416,6 @@ textarea {
   pointer-events: none;
 }
 
-/* ─── Captain Badge ─── */
 .captain-badge {
   background: linear-gradient(135deg, #f59e0b, #d97706);
   color: #0c1324;
@@ -326,115 +428,66 @@ textarea {
   border-radius: 0.25rem;
 }
 
-/* ─── Super Over Banner ─── */
 .super-over-banner {
-  background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(245, 158, 11, 0.15));
-  border: 1px solid rgba(239, 68, 68, 0.3);
+  background: linear-gradient(135deg, rgba(226, 39, 24, 0.2), rgba(245, 158, 11, 0.2));
+  border: 1px solid rgba(226, 39, 24, 0.4);
   border-radius: 0.75rem;
 }
 
 .neon-text-super {
   color: #f59e0b;
-  text-shadow: 0 0 30px rgba(245, 158, 11, 0.6), 0 0 60px rgba(245, 158, 11, 0.4), 0 0 90px rgba(245, 158, 11, 0.2);
+  text-shadow: 0 0 30px rgba(245, 158, 11, 0.6);
 }
 
-/* ─── Room Code Cells ─── */
-.room-code-cell {
-  width: 3.5rem;
-  height: 4rem;
-  background: #232938;
-  border: 2px solid rgba(60, 74, 66, 0.3);
-  border-radius: 0.5rem;
-  color: #e2e8f0;
-  font-family: 'Space Grotesk', sans-serif;
-  font-weight: 700;
-  font-size: 1.5rem;
-  text-align: center;
-  text-transform: uppercase;
-  outline: none;
-  transition: all 0.2s ease;
-  caret-color: #5af0b3;
+/* ─── Custom Scrollbar ─── */
+::-webkit-scrollbar {
+  width: 6px;
 }
 
-.room-code-cell:focus {
-  border-color: #5af0b3;
-  box-shadow: 0 0 16px rgba(90, 240, 179, 0.2);
+::-webkit-scrollbar-track {
+  background: transparent;
 }
 
-/* ─── Ready Pulse ─── */
-.pulse-ready {
-  animation: pulse-ready 2s ease-in-out infinite;
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 112, 209, 0.3);
+  border-radius: 3px;
 }
 
-@keyframes pulse-ready {
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 112, 209, 0.6);
+}
+
+/* ─── Coin Flip Animation ─── */
+.coin-orbit {
+  animation: coin-flip 2.8s ease-in-out infinite;
+}
+
+.danger-shake {
+  animation: danger-shake 0.45s ease;
+}
+
+@keyframes coin-flip {
   0%, 100% {
-    box-shadow: 0 0 0 0 rgba(90, 240, 179, 0.4);
+    transform: rotateY(0deg) translateY(0);
   }
   50% {
-    box-shadow: 0 0 0 8px rgba(90, 240, 179, 0);
+    transform: rotateY(180deg) translateY(-8px);
   }
 }
 
-/* ─── Tactile Button Secondary ─── */
-.tactile-btn-secondary {
-  background: linear-gradient(135deg, #3b82f6, #2563eb);
-  color: white;
-  font-family: 'Space Grotesk', sans-serif;
-  font-weight: 700;
-  font-style: italic;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  border-radius: 0.375rem;
-  box-shadow: 0 4px 0 #1d4ed8;
-  transition: all 0.1s ease;
+@keyframes danger-shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-5px); }
+  80% { transform: translateX(5px); }
 }
 
-.tactile-btn-secondary:active {
-  box-shadow: 0 2px 0 #1d4ed8;
-  transform: translateY(2px);
-}
-
-.tactile-btn-secondary:hover {
-  filter: brightness(1.08);
-}
-
-/* ─── Tactile Button Amber (Super Over) ─── */
-.tactile-btn-amber {
-  background: linear-gradient(135deg, #f59e0b, #d97706);
-  color: #0c1324;
-  font-family: 'Space Grotesk', sans-serif;
-  font-weight: 700;
-  font-style: italic;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  border-radius: 0.375rem;
-  box-shadow: 0 4px 0 #92400e;
-  transition: all 0.1s ease;
-}
-
-.tactile-btn-amber:active {
-  box-shadow: 0 2px 0 #92400e;
-  transform: translateY(2px);
-}
-
-/* ─── Active Turn Glow ─── */
-.active-turn-glow {
-  box-shadow: 0 0 25px rgba(90, 240, 179, 0.2), inset 0 0 25px rgba(90, 240, 179, 0.05);
-  border-color: rgba(90, 240, 179, 0.5) !important;
-}
-
-/* ─── Splash Scale Keyframe ─── */
 .splash-scale {
-  animation: splash-scale 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation: splash-scale 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 @keyframes splash-scale {
-  0% {
-    transform: scale(0);
-    opacity: 0;
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
+  0% { transform: scale(0); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
 }

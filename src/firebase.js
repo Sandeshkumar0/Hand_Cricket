@@ -7,6 +7,26 @@ import { getDatabase } from "firebase/database";
 // Your web app's Firebase configuration
 
 
+
+
+
+
+
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyBdZqr8EClhENZ4aoobxzhMPS_Ytg30nlg",
+  authDomain: "hand-cricket-3a716.firebaseapp.com",
+  databaseURL: "https://hand-cricket-3a716-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "hand-cricket-3a716",
+  storageBucket: "hand-cricket-3a716.firebasestorage.app",
+  messagingSenderId: "847333952255",
+  appId: "1:847333952255:web:bafc591d5126744982daca"
+};
+
 // Initialize Firebase
+
 const app = initializeApp(firebaseConfig);
 export const db = getDatabase(app);
