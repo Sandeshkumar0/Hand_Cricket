@@ -1,8 +1,9 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Bot, Copy, Check, Zap, Crown } from 'lucide-react';
+import { ArrowLeft, Bot, Copy, Check, Zap, Crown, Wifi, WifiOff } from 'lucide-react';
 import { PlayerMarker } from '../../components/CricketIcons';
 import { useMultiplayer } from '../../context/MultiplayerContext';
+import PlayerProfileModal from '../../components/PlayerProfileModal';
 
 function MPLobby() {
   const { state, dispatch } = useMultiplayer();
@@ -16,6 +17,7 @@ function MPLobby() {
   const amIHost = currentPlayerId === hostId;
 
   const [copied, setCopied] = React.useState(false);
+  const [selectedProfile, setSelectedProfile] = React.useState(null);
 
   const copyCode = () => {
     navigator.clipboard.writeText(roomCode).catch(() => {});
@@ -100,15 +102,24 @@ function MPLobby() {
                 )}
 
                 {/* Avatar */}
-                <div className={`mx-auto flex h-14 w-14 items-center justify-center rounded-xl text-2xl ${
-                  player.isBot ? 'bg-blue-500/15' : 'bg-arena-container-highest'
-                }`}>
+                <div 
+                  className={`mx-auto flex h-14 w-14 items-center justify-center rounded-xl text-2xl cursor-pointer ${
+                  player.isBot ? 'bg-blue-500/15' : 'bg-arena-container-highest hover:bg-arena-container-highest/80'
+                }`}
+                  onClick={() => setSelectedProfile(player)}
+                  title="View Profile"
+                >
                   <PlayerMarker token={player.emoji} className="h-8 w-8" />
                 </div>
 
                 {/* Name */}
-                <p className="mt-2 truncate font-display text-sm font-bold text-white">
+                <p className="mt-2 truncate font-display text-sm font-bold text-white flex items-center justify-center gap-1">
                   {player.name}
+                  {!player.isBot && (player.isOnline ? (
+                    <Wifi size={10} className="text-emerald-400" title="Online" />
+                  ) : (
+                    <WifiOff size={10} className="text-red-400" title="Offline" />
+                  ))}
                 </p>
 
                 {/* Ready status */}
@@ -208,6 +219,12 @@ function MPLobby() {
           </div>
         )}
       </div>
+
+      <PlayerProfileModal
+        open={!!selectedProfile}
+        onClose={() => setSelectedProfile(null)}
+        playerStats={selectedProfile?.careerStats}
+      />
     </div>
   );
 }

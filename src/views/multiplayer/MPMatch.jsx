@@ -246,6 +246,8 @@ function MPMatch() {
           motmInfo={motmDetails}
           playerStats={formattedMatchStats.player}
           botStats={formattedMatchStats.bot}
+          playerName={state.players[currentPlayerId]?.name || 'Player'}
+          botName={state.players[opponentId]?.name || 'Opponent'}
           onContinueToResult={() => setMatchEndStep('result')}
         />
       );
