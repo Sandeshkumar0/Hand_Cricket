@@ -1,4 +1,6 @@
 // LocalStorage Engine for Player & Bot Lifetime Career Statistics
+import { auth, db } from '../firebase';
+import { ref, set } from 'firebase/database';
 
 const STORAGE_KEY = 'hand_cricket_career_stats';
 
@@ -88,6 +90,9 @@ export function loadAllCareerStats() {
 export function saveAllCareerStats(data) {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    if (auth?.currentUser) {
+      set(ref(db, `users/${auth.currentUser.uid}/stats`), data).catch(console.error);
+    }
   } catch {}
 }
 

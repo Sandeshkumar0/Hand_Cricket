@@ -26,6 +26,8 @@ import SuperOverReveal from './views/multiplayer/SuperOverReveal';
 import SuperOverMatch from './views/multiplayer/SuperOverMatch';
 import TeamChatWidget from './views/multiplayer/TeamChatWidget';
 import PlayerProfileModal from './components/PlayerProfileModal';
+import AuthModal from './components/AuthModal';
+import { useAuth } from './context/AuthContext';
 import { loadAllCareerStats } from './utils/statsStorage';
 import { soundEngine } from './utils/audio';
 
@@ -53,6 +55,8 @@ function App() {
   const { state: mpState, dispatch: mpDispatch } = useMultiplayer();
   const [teamChatOpen, setTeamChatOpen] = useState(false);
   const [profileModalOpen, setProfileModalOpen] = useState(false);
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const { currentUser } = useAuth();
   const careerStats = loadAllCareerStats();
 
   const [isMuted, setIsMuted] = useState(soundEngine.muted);
@@ -267,6 +271,18 @@ function App() {
                 <span>PROFILE STATS</span>
               </button>
 
+              <button
+                type="button"
+                onClick={() => {
+                  soundEngine.playUiClick();
+                  setAuthModalOpen(true);
+                }}
+                className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/20 border border-emerald-400/30 text-xs font-mono font-bold text-emerald-300 hover:bg-emerald-500/30 transition"
+              >
+                <User size={14} />
+                <span>{currentUser ? currentUser.displayName || 'ACCOUNT' : 'LOGIN'}</span>
+              </button>
+
               {mpState.phase !== 'MP_GATEWAY' && (
                 <span className="rounded-md bg-amber-500/20 px-2.5 py-1 font-mono text-[10px] font-bold text-amber-300 border border-amber-500/30">
                   MULTIPLAYER
@@ -309,6 +325,11 @@ function App() {
         open={profileModalOpen}
         onClose={() => setProfileModalOpen(false)}
         playerStats={careerStats.player}
+      />
+
+      <AuthModal 
+        open={authModalOpen} 
+        onClose={() => setAuthModalOpen(false)} 
       />
 
       {mpState.phase !== 'MP_GATEWAY' && (
