@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { db } from '../firebase.js';
 import { remove, update, ref, runTransaction, set, get } from 'firebase/database';
 import { useGameRoom } from '../hooks/useGameRoom.js';
@@ -157,9 +157,22 @@ export function MultiplayerProvider({ children }) {
 
   const { roomState, actions, isHost } = useGameRoom(localState.roomCode, localState.userId);
 
+  const hasJoinedRef = useRef(false);
+
+  useEffect(() => {
+    hasJoinedRef.current = false;
+  }, [localState.roomCode]);
+
+  useEffect(() => {
+    if (roomState?.players?.[localState.userId]) {
+      hasJoinedRef.current = true;
+    }
+  }, [roomState, localState.userId]);
+
   const state = useMemo(() => {
     const wasKickedOut =
       Boolean(localState.roomCode) &&
+      hasJoinedRef.current &&
       Boolean(roomState?.players) &&
       !roomState.players[localState.userId];
 
@@ -692,11 +705,6 @@ export function MultiplayerProvider({ children }) {
         const moveKey = role === 'batter' ? 'batterMove' : 'bowlerMove';
         let updates = { [path(`match/lockedMoves/${moveKey}`)]: move };
         
-        // Local Optimistic predict
-        const otherKey = role === 'batter' ? state.lockedMoves.bowlerMove : state.lockedMoves.batterMove;
-        if (otherKey != null) {
-           updates[path('meta/status')] = 'MP_RESOLVE_MOVE';
-        }
         update(ref(db), updates);
         break;
       }
@@ -928,14 +936,9 @@ export function MultiplayerProvider({ children }) {
         }
 
         const moveKey = role === 'batter' ? 'batterMove' : 'bowlerMove';
-        const otherKey = role === 'batter' ? state.superOver.lockedMoves.bowlerMove : state.superOver.lockedMoves.batterMove;
         const updates = {
           [path(`superOver/lockedMoves/${moveKey}`)]: move,
         };
-
-        if (otherKey != null) {
-          updates[path('meta/status')] = 'MP_RESOLVE_SO';
-        }
 
         update(ref(db), updates);
         break;
