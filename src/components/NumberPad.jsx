@@ -1,92 +1,48 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import HandGestureCard from './HandGestureCard';
 
 const GRID_CLASS = {
   1: 'grid-cols-1',
   2: 'grid-cols-2',
   3: 'grid-cols-3',
   4: 'grid-cols-4',
-};
-
-const SPAN_CLASS = {
-  1: '',
-  2: 'col-span-2',
-  3: 'col-span-3',
-  4: 'col-span-4',
-};
-
-const buildRows = (options) => {
-  if (options.length === 7) {
-    return [
-      {
-        columns: 4,
-        items: options.slice(0, 4).map((value) => ({ value, span: 1 })),
-      },
-      {
-        columns: 4,
-        items: [
-          { value: options[4], span: 1 },
-          { value: options[5], span: 2 },
-          { value: options[6], span: 1 },
-        ],
-      },
-    ];
-  }
-
-  if (options.length === 6) {
-    return [
-      {
-        columns: 3,
-        items: options.slice(0, 3).map((value) => ({ value, span: 1 })),
-      },
-      {
-        columns: 3,
-        items: options.slice(3).map((value) => ({ value, span: 1 })),
-      },
-    ];
-  }
-
-  const midpoint = Math.ceil(options.length / 2);
-  return [
-    {
-      columns: midpoint,
-      items: options.slice(0, midpoint).map((value) => ({ value, span: 1 })),
-    },
-    {
-      columns: Math.max(1, options.length - midpoint),
-      items: options.slice(midpoint).map((value) => ({ value, span: 1 })),
-    },
-  ];
+  6: 'grid-cols-3 md:grid-cols-6',
 };
 
 function NumberPad({
-  options,
+  options = [1, 2, 3, 4, 5, 6],
   onSelect,
   disabled = false,
   className = '',
   buttonClassName = '',
 }) {
-  const rows = buildRows(options);
-
   return (
-    <div className={`${disabled ? 'pointer-events-none opacity-40' : ''} ${className}`.trim()}>
-      <div className="space-y-3">
-        {rows.map((row, rowIndex) => (
-          <div
-            key={`row-${rowIndex}`}
-            className={`grid gap-3 ${GRID_CLASS[row.columns] || 'grid-cols-1'}`}
-          >
-            {row.items.map((item) => (
-              <motion.button
-                key={item.value}
-                whileTap={{ scale: 0.94 }}
-                onClick={() => onSelect(item.value)}
-                className={`num-pad-btn w-full ${SPAN_CLASS[item.span] || ''} ${buttonClassName}`.trim()}
-              >
-                {item.value}
-              </motion.button>
-            ))}
-          </div>
+    <div className={`w-full ${disabled ? 'pointer-events-none opacity-40' : ''} ${className}`.trim()}>
+      {/* Shift Light & Power Rev Header */}
+      <div className="flex items-center justify-between px-2 mb-3">
+        <div className="flex items-center space-x-2">
+          <span className="w-2 h-2 rounded-full bg-blue-500 animate-ping" />
+          <span className="text-[11px] font-mono font-bold tracking-widest text-slate-400 uppercase">
+            SELECT MOVE (1 - 6)
+          </span>
+        </div>
+        <div className="flex items-center space-x-1">
+          <div className="shift-light-dot cyan" />
+          <div className="shift-light-dot yellow" />
+          <div className="shift-light-dot red" />
+        </div>
+      </div>
+
+      {/* Grid of Hand Gesture Cards */}
+      <div className={`grid gap-3.5 ${GRID_CLASS[options.length] || 'grid-cols-3 md:grid-cols-6'}`}>
+        {options.map((value) => (
+          <HandGestureCard
+            key={value}
+            value={value}
+            isDisabled={disabled}
+            onClick={onSelect}
+            label={value === 6 ? 'SIX' : value === 4 ? 'FOUR' : `RUN ${value}`}
+          />
         ))}
       </div>
     </div>
