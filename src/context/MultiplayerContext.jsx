@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react';
+import { loadAllCareerStats } from '../utils/statsStorage.js';
 import { db } from '../firebase.js';
 import { remove, update, ref, runTransaction, set, get } from 'firebase/database';
 import { useGameRoom } from '../hooks/useGameRoom.js';
@@ -362,7 +363,7 @@ export function MultiplayerProvider({ children }) {
           settings: defaultSettings,
           players: {
             [localState.userId]: {
-              id: localState.userId, name: playerName, emoji: getPlayerEmojiForId(localState.userId), isBot: false, isReady: true, isOnline: true
+              id: localState.userId, name: playerName, emoji: getPlayerEmojiForId(localState.userId), isBot: false, isReady: true, isOnline: true, careerStats: loadAllCareerStats().player
             }
           }
         });
@@ -386,7 +387,7 @@ export function MultiplayerProvider({ children }) {
           setLocalState(s => ({ ...s, roomCode: code, notice: null }));
           update(ref(db), {
             [`rooms/${code}/players/${localState.userId}`]: {
-              id: localState.userId, name: name || 'Player', emoji: getPlayerEmojiForId(localState.userId), isBot: false, isReady: false, isOnline: true
+              id: localState.userId, name: name || 'Player', emoji: getPlayerEmojiForId(localState.userId), isBot: false, isReady: false, isOnline: true, careerStats: loadAllCareerStats().player
             }
           });
         }).catch((err) => {
@@ -575,7 +576,7 @@ export function MultiplayerProvider({ children }) {
 
         const stats = {};
         [...state.teams.teamA.roster, ...state.teams.teamB.roster].forEach(id => {
-          stats[id] = { runs: 0, ballsFaced: 0, wickets: 0, ballsBowled: 0, runsConceded: 0, dismissals: 0 };
+          stats[id] = { runs: 0, ballsFaced: 0, wickets: 0, ballsBowled: 0, runsConceded: 0, dismissals: 0, fours: 0, sixes: 0, dotBalls: 0 };
         });
 
         update(ref(db), {
@@ -730,12 +731,14 @@ export function MultiplayerProvider({ children }) {
           [path('match/currentOverLog')]: [...state.currentOverLog, ballEntry].slice(-6),
         };
 
-        // Stats update
         const stats = { ...state.playerStats };
         if (stats[state.activeBatterId]) {
           stats[state.activeBatterId].runs += runs;
           stats[state.activeBatterId].ballsFaced += 1;
           if (isOut) stats[state.activeBatterId].dismissals += 1;
+          stats[state.activeBatterId].fours += (!isOut && runs === 4 ? 1 : 0);
+          stats[state.activeBatterId].sixes += (!isOut && runs === 6 ? 1 : 0);
+          stats[state.activeBatterId].dotBalls += (!isOut && runs === 0 ? 1 : 0);
         }
         if (stats[state.activeBowlerId]) {
           stats[state.activeBowlerId].wickets += (isOut ? 1 : 0);

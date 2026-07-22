@@ -22,6 +22,9 @@ const createCompetitorStats = () => ({
   ballsBowled: 0,
   runsConceded: 0,
   dismissals: 0,
+  fours: 0,
+  sixes: 0,
+  dotBalls: 0,
   inningsScores: [],
 });
 
@@ -365,6 +368,9 @@ export function gameReducer(state = initialState, action) {
           runs: nextStats[batterSide].runs + runs,
           ballsFaced: nextStats[batterSide].ballsFaced + 1,
           dismissals: nextStats[batterSide].dismissals + (isOut ? 1 : 0),
+          fours: nextStats[batterSide].fours + (!isOut && runs === 4 ? 1 : 0),
+          sixes: nextStats[batterSide].sixes + (!isOut && runs === 6 ? 1 : 0),
+          dotBalls: nextStats[batterSide].dotBalls + (!isOut && runs === 0 ? 1 : 0),
         },
         [bowlerSide]: {
           ...nextStats[bowlerSide],

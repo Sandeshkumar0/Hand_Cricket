@@ -439,6 +439,8 @@ function Match() {
           motmInfo={motmDetails}
           playerStats={match_stats.player}
           botStats={match_stats.bot}
+          playerName="CHAMPION PLAYER"
+          botName={players[BOT?.id]?.name || 'BOT'}
           onContinueToResult={() => setMatchEndStep('result')}
         />
       );

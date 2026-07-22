@@ -8,6 +8,8 @@ export default function ManOfTheMatchCard({
   playerStats,
   botStats,
   onContinueToResult,
+  playerName = 'CHAMPION PLAYER',
+  botName = 'AI MASTERMIND',
 }) {
   useEffect(() => {
     soundEngine.playMatchVictorySound();
@@ -19,7 +21,7 @@ export default function ManOfTheMatchCard({
   const winnerMatch = isPlayer ? playerStats : botStats;
   const winnerPoints = motmInfo.winnerStats;
 
-  const winnerName = isPlayer ? 'CHAMPION PLAYER' : 'AI MASTERMIND';
+  const winnerName = isPlayer ? playerName : botName;
   const winnerTeam = isPlayer ? 'India Legends' : 'Cyber Strikers';
   const winnerRole = isPlayer ? 'All-Rounder' : 'Bowler';
   const winnerAvatar = isPlayer ? '🏏' : '🤖';
