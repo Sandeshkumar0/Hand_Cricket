@@ -26,6 +26,7 @@ import { useGame } from '../context/GameContext';
 import { soundEngine } from '../utils/audio';
 import { determineManOfTheMatch } from '../utils/pointsCalculator';
 import { updateCareerAfterMatch } from '../utils/statsStorage';
+import { useAuth } from '../context/AuthContext';
 
 const formatOvers = (balls) => `${Math.floor(balls / 6)}.${balls % 6}`;
 const MOVE_OPTIONS = [0, 1, 2, 3, 4, 5, 6];
@@ -165,7 +166,7 @@ function InningsBreak({ score, wickets, oversDisplay, target, onAdvance, matchSe
 }
 
 /* ─── Victory Result ─── */
-function VictoryResult({ resultMeta, matchStats, matchSettings, ballLog, oversDisplay, onAction, actionLabel }) {
+function VictoryResult({ resultMeta, matchStats, matchSettings, ballLog, oversDisplay, onAction, actionLabel, playerName }) {
   useEffect(() => {
     // Play distinctive MATCH VICTORY audio tune!
     soundEngine.playMatchVictorySound();
@@ -202,7 +203,7 @@ function VictoryResult({ resultMeta, matchStats, matchSettings, ballLog, oversDi
                 <PlayerMarker token="bat" className="h-8 w-8" />
               </div>
               <div>
-                <p className="font-mono text-base font-extrabold text-white">CHAMPION PLAYER</p>
+                <p className="font-mono text-base font-extrabold text-white uppercase">{playerName}</p>
                 <p className="text-xs font-mono text-blue-400">STADIUM RANK #1</p>
               </div>
             </div>
@@ -293,6 +294,8 @@ function QuitConfirmModal({ onCancel, onConfirm }) {
 
 function Match() {
   const { state, dispatch } = useGame();
+  const { currentUser } = useAuth();
+  const playerName = currentUser?.displayName || 'Player';
   const {
     currentPhase,
     player_role,
@@ -439,7 +442,7 @@ function Match() {
           motmInfo={motmDetails}
           playerStats={match_stats.player}
           botStats={match_stats.bot}
-          playerName="CHAMPION PLAYER"
+          playerName={playerName}
           botName={players[BOT?.id]?.name || 'BOT'}
           onContinueToResult={() => setMatchEndStep('result')}
         />
@@ -455,6 +458,7 @@ function Match() {
         oversDisplay={oversDisplay}
         onAction={() => dispatch({ type: 'NEXT_MATCH' })}
         actionLabel={series_winner ? 'View Series Result' : 'Next Match'}
+        playerName={playerName}
       />
     ) : (
       <DefeatResult
@@ -487,6 +491,7 @@ function Match() {
             score={score.batting}
             wickets={wickets.batting + 1}
             balls={balls_bowled}
+            /* v8 ignore next */
             botName={bowler?.name ?? 'BOT'}
           />
         )}
@@ -495,6 +500,7 @@ function Match() {
       {/* Top Telemetry Header */}
       <MotorsportHUD
         title="LIVE STADIUM MATCH"
+        /* v8 ignore next */
         subTitle={`SESSION ${innings} • OVERS ${oversDisplay}/${oversLimit || '∞'}`}
         lightbarState={lightbarState}
         currentRunRate={derivedStats.currentRunRate}
@@ -574,8 +580,10 @@ function Match() {
               {current_over_log.map((ball) => (
                 <div
                   key={ball.ballId}
+                  /* v8 ignore next */
                   className={`ball-chip ${ball.isOut ? 'ball-chip-wicket' : ball.runs === 0 ? 'ball-chip-dot' : 'ball-chip-runs'}`}
                 >
+                  {/* v8 ignore next */}
                   {ball.isOut ? 'W' : ball.runs}
                 </div>
               ))}

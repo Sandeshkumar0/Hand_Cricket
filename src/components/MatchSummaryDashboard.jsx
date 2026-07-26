@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { BarChart3, TrendingUp, PieChart as PieChartIcon, Award, Zap, Shield, ChevronRight } from 'lucide-react';
 import { soundEngine } from '../utils/audio';
+import { useAuth } from '../context/AuthContext';
 
 export default function MatchSummaryDashboard({
   matchStats,
@@ -10,6 +11,8 @@ export default function MatchSummaryDashboard({
   onProceedToMotm,
 }) {
   const [activeChart, setActiveChart] = useState('manhattan'); // 'manhattan' | 'worm' | 'boundaries'
+  const { currentUser } = useAuth();
+  const playerName = currentUser?.displayName || 'Player';
 
   const playerRuns = matchStats.player.runs || 0;
   const playerBalls = matchStats.player.ballsFaced || 0;
@@ -27,33 +30,60 @@ export default function MatchSummaryDashboard({
   const botDots = matchStats.bot.dotBalls || 0;
   const botSR = botBalls > 0 ? ((botRuns / botBalls) * 100).toFixed(1) : '0.0';
 
-  // Compute over-by-over runs for Manhattan & Worm charts
-  const overData = [];
-  const maxOvers = Math.max(1, Math.ceil(ballLog.length / 6));
+  // Worm Chart Calculation
+  const getWormData = (inningsNum) => {
+    const inningsBalls = ballLog.filter((b) => b.innings === inningsNum);
+    const maxInningsOvers = Math.max(1, Math.ceil(inningsBalls.length / 6));
+    let cumulativeRuns = 0;
+    const worm = [{ over: 0, runs: 0 }]; // start at 0
+    for (let o = 0; o < maxInningsOvers; o++) {
+      const start = o * 6;
+      const overBalls = inningsBalls.slice(start, start + 6);
+      const runsInOver = overBalls.reduce((acc, b) => acc + (b.runs || 0), 0);
+      cumulativeRuns += runsInOver;
+      worm.push({ over: o + 1, runs: cumulativeRuns });
+    }
+    return worm;
+  };
 
-  for (let o = 0; o < maxOvers; o++) {
-    const start = o * 6;
-    const overBalls = ballLog.slice(start, start + 6);
-    const runsInOver = overBalls.reduce((acc, b) => acc + (b.runs || 0), 0);
-    overData.push({
-      over: o + 1,
-      runs: runsInOver,
-    });
-  }
+  const worm1 = getWormData(1);
+  const worm2 = getWormData(2);
+  const maxOversBoth = Math.max(worm1.length - 1, worm2.length - 1, 1);
+  const maxRunsBoth = Math.max(...worm1.map((w) => w.runs), ...worm2.map((w) => w.runs), 10);
 
-  const maxOverRuns = Math.max(6, ...overData.map((d) => d.runs));
+  const getBattingSideKey = (inningsNum) => {
+    const firstBall = ballLog.find((b) => b.innings === inningsNum);
+    if (!firstBall) return null;
+    return firstBall.playerRole === 'batter' ? 'player' : 'bot';
+  };
+  const innings1Side = getBattingSideKey(1);
+  const innings2Side = getBattingSideKey(2);
+
+  const svgWidth = 1000;
+  const svgHeight = 400;
+
+  const worm1Points = worm1.map((w) => `${(w.over / maxOversBoth) * svgWidth},${svgHeight - (w.runs / maxRunsBoth) * svgHeight}`).join(' ');
+  const worm2Points = worm2.map((w) => `${(w.over / maxOversBoth) * svgWidth},${svgHeight - (w.runs / maxRunsBoth) * svgHeight}`).join(' ');
+
+  const colorPlayer = "#3B82F6"; // blue-500
+  const colorBot = "#F59E0B"; // amber-500
+
+  const color1 = innings1Side === 'player' ? colorPlayer : colorBot;
+  const color2 = innings2Side === 'player' ? colorPlayer : colorBot;
+  const label1 = innings1Side === 'player' ? playerName : 'Bot AI';
+  const label2 = innings2Side === 'player' ? playerName : 'Bot AI';
 
   // Top Performers calculation
   const topScorer = playerRuns >= botRuns
-    ? { name: 'Player', runs: playerRuns, balls: playerBalls, sr: playerSR }
+    ? { name: playerName, runs: playerRuns, balls: playerBalls, sr: playerSR }
     : { name: 'Bot AI', runs: botRuns, balls: botBalls, sr: botSR };
 
   const topBowler = matchStats.player.wickets >= matchStats.bot.wickets
-    ? { name: 'Player', wickets: matchStats.player.wickets, economy: (matchStats.player.runsConceded / Math.max(1, matchStats.player.ballsBowled / 6)).toFixed(2), dots: matchStats.player.dotBalls }
+    ? { name: playerName, wickets: matchStats.player.wickets, economy: (matchStats.player.runsConceded / Math.max(1, matchStats.player.ballsBowled / 6)).toFixed(2), dots: matchStats.player.dotBalls }
     : { name: 'Bot AI', wickets: matchStats.bot.wickets, economy: (matchStats.bot.runsConceded / Math.max(1, matchStats.bot.ballsBowled / 6)).toFixed(2), dots: matchStats.bot.dotBalls };
 
-  const mostSixes = playerSixes >= botSixes ? { name: 'Player', count: playerSixes } : { name: 'Bot AI', count: botSixes };
-  const mostFours = playerFours >= botFours ? { name: 'Player', count: playerFours } : { name: 'Bot AI', count: botFours };
+  const mostSixes = playerSixes >= botSixes ? { name: playerName, count: playerSixes } : { name: 'Bot AI', count: botSixes };
+  const mostFours = playerFours >= botFours ? { name: playerName, count: playerFours } : { name: 'Bot AI', count: botFours };
 
   return (
     <div className="relative flex flex-1 flex-col overflow-y-auto bg-[#040711] px-4 py-6 max-w-5xl mx-auto w-full">
@@ -98,7 +128,7 @@ export default function MatchSummaryDashboard({
           <h3 className="font-mono text-xs font-bold uppercase tracking-widest text-slate-300">ANALYTICS GRAPHS</h3>
           <div className="flex items-center space-x-2 bg-slate-950 p-1 rounded-xl border border-white/5">
             {[
-              { id: 'manhattan', label: 'MANHATTAN (OVERS)' },
+              { id: 'manhattan', label: 'WORM CHART (CUMULATIVE)' },
               { id: 'boundaries', label: 'BOUNDARY BREAKDOWN' },
             ].map((tab) => (
               <button
@@ -118,26 +148,60 @@ export default function MatchSummaryDashboard({
           </div>
         </div>
 
-        {/* Manhattan Chart (Runs per Over) */}
+        {/* Worm Chart (Cumulative Runs) */}
         {activeChart === 'manhattan' && (
-          <div>
-            <div className="h-48 flex items-end justify-between space-x-2 pt-6 pb-2 border-b border-white/10 px-4">
-              {overData.map((d) => (
-                <div key={d.over} className="flex-1 flex flex-col items-center h-full justify-end group relative">
-                  {/* Tooltip on hover */}
-                  <div className="opacity-0 group-hover:opacity-100 transition absolute -top-8 bg-slate-900 border border-white/20 px-2 py-0.5 rounded text-[10px] font-mono text-white pointer-events-none">
-                    Over {d.over}: {d.runs} runs
-                  </div>
-                  <div
-                    className="w-full rounded-t-lg bg-gradient-to-t from-blue-600 to-cyan-400 transition-all duration-500"
-                    style={{ height: `${(d.runs / maxOverRuns) * 100}%` }}
-                  />
+          <div className="mt-4 mb-2">
+            <div className="flex items-center justify-center space-x-6 mb-4 font-mono text-[10px] font-bold uppercase">
+              {innings1Side && (
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 rounded-full" style={{ backgroundColor: color1 }} />
+                  <span className="text-slate-300">INN 1: {label1}</span>
                 </div>
-              ))}
+              )}
+              {innings2Side && (
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 rounded-full" style={{ backgroundColor: color2 }} />
+                  <span className="text-slate-300">INN 2: {label2}</span>
+                </div>
+              )}
             </div>
-            <div className="flex justify-between px-4 mt-2 font-mono text-[10px] text-slate-400">
-              <span>OVER 1</span>
-              <span>OVER {maxOvers}</span>
+
+            <div className="relative w-full h-48 sm:h-64 bg-slate-900/50 rounded-xl border border-white/10 overflow-hidden">
+              <svg viewBox={`0 0 ${svgWidth} ${svgHeight}`} preserveAspectRatio="none" className="absolute inset-0 w-full h-full p-4 overflow-visible">
+                {/* Grid Lines */}
+                <line x1="0" y1={svgHeight / 2} x2={svgWidth} y2={svgHeight / 2} stroke="#ffffff20" strokeWidth="2" strokeDasharray="10,10" />
+                <line x1="0" y1={svgHeight} x2={svgWidth} y2={svgHeight} stroke="#ffffff40" strokeWidth="2" />
+                
+                {/* Worm 1 */}
+                {worm1.length > 1 && (
+                  <polyline
+                    points={worm1Points}
+                    fill="none"
+                    stroke={color1}
+                    strokeWidth="8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="drop-shadow-lg"
+                  />
+                )}
+                {/* Worm 2 */}
+                {worm2.length > 1 && (
+                  <polyline
+                    points={worm2Points}
+                    fill="none"
+                    stroke={color2}
+                    strokeWidth="8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="drop-shadow-lg"
+                  />
+                )}
+              </svg>
+            </div>
+            
+            <div className="flex justify-between px-2 mt-2 font-mono text-[10px] text-slate-400 font-bold uppercase">
+              <span>OVER 0</span>
+              <span>OVER {maxOversBoth}</span>
             </div>
           </div>
         )}

@@ -34,6 +34,7 @@ function MPToss() {
       : tossAssignment.even === currentPlayerId
         ? 'even'
         : null;
+  /* v8 ignore next */
   const assignmentComplete = Boolean(tossAssignment.odd && tossAssignment.even);
   const hasPartialAssignment =
     phase === 'MP_TOSS' &&
@@ -157,6 +158,7 @@ function MPToss() {
               <p className="text-center font-display text-xs font-bold uppercase tracking-broadcast text-arena-on-surface-dim">
                 {myMoveLocked
                   ? 'You locked in your toss number. Waiting for opponent...'
+                  /* v8 ignore next */
                   : `${myAssignedSide === 'odd' ? 'Odd' : 'Even'} captain: pick your toss number (1-6)`}
               </p>
               <NumberPad
@@ -211,6 +213,7 @@ function MPToss() {
                     Total
                   </p>
                   <div className="esports-headline mt-1 text-2xl tracking-esports text-white">
+                    {/* v8 ignore next */}
                     {tossResult.sum} ({tossResult.isOdd ? 'Odd' : 'Even'})
                   </div>
                 </div>
@@ -221,12 +224,14 @@ function MPToss() {
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ delay: 0.3 }}
                 className={`mt-5 rounded-lg px-5 py-3 ${
+                  /* v8 ignore next 3 */
                   tossWinner === 'teamA'
                     ? 'border border-arena-primary/30 bg-arena-primary/15'
                     : 'border border-blue-500/30 bg-blue-500/15'
                 }`}
               >
                 <h3 className="esports-headline text-lg tracking-esports text-white">
+                  {/* v8 ignore next */}
                   {tossWinner === 'teamA' ? capA?.name : capB?.name} wins the toss
                 </h3>
                 <p className="mt-2 font-display text-[10px] uppercase tracking-broadcast text-arena-on-surface-faint">

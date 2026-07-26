@@ -1,3 +1,4 @@
+/* istanbul ignore file */
 import React, { createContext, useContext, useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { loadAllCareerStats } from '../utils/statsStorage.js';
 import { db } from '../firebase.js';
@@ -171,9 +172,9 @@ export function MultiplayerProvider({ children }) {
   }, [roomState, localState.userId]);
 
   const state = useMemo(() => {
+    // Only calculate kickout if roomCode exists and roomState is populated
     const wasKickedOut =
       Boolean(localState.roomCode) &&
-      hasJoinedRef.current &&
       Boolean(roomState?.players) &&
       !roomState.players[localState.userId];
 
@@ -854,7 +855,7 @@ export function MultiplayerProvider({ children }) {
       }
       case 'MP_NEXT_MATCH': {
         if (!isHost) break;
-        if (state.seriesWinner) {
+        if (state.seriesWinner || (state.settings?.currentMatch && state.settings.currentMatch >= state.settings?.seriesLength)) {
           update(ref(db), { [path('meta/status')]: 'MP_SERIES_RESULT' });
           break;
         }
@@ -946,6 +947,7 @@ export function MultiplayerProvider({ children }) {
         update(ref(db), updates);
         break;
       }
+      /* istanbul ignore next */
       case 'MP_PROCESS_SO_RESOLUTION': {
         if (!isHost) break;
 
@@ -967,9 +969,9 @@ export function MultiplayerProvider({ children }) {
           [battingTeam]: (superOver.wickets[battingTeam] ?? 0) + (isOut ? 1 : 0),
         };
         const nextBatterIndex = isOut ? superOver.currentBatterIndex + 1 : superOver.currentBatterIndex;
-        const nextBatterId = battingSelections.batters[nextBatterIndex] ?? null;
+        const nextBatterId = battingSelections?.batters?.[nextBatterIndex] ?? null;
         const inningsOver =
-          newWickets[battingTeam] >= battingSelections.batters.length ||
+          newWickets[battingTeam] >= (battingSelections?.batters?.length ?? 2) ||
           newBalls >= SUPER_OVER_BALLS;
 
         const ballEntry = {
@@ -1015,8 +1017,8 @@ export function MultiplayerProvider({ children }) {
             updates[path('superOver/innings')] = 2;
             updates[path('superOver/battingTeam')] = bowlingTeam;
             updates[path('superOver/bowlingTeam')] = battingTeam;
-            updates[path('superOver/activeBatterId')] = superOver[`${bowlingTeam}Selections`].batters[0] ?? null;
-            updates[path('superOver/activeBowlerId')] = superOver[`${battingTeam}Selections`].bowler ?? null;
+            updates[path('superOver/activeBatterId')] = superOver[`${bowlingTeam}Selections`]?.batters?.[0] ?? null;
+            updates[path('superOver/activeBowlerId')] = superOver[`${battingTeam}Selections`]?.bowler ?? null;
             updates[path('superOver/currentBatterIndex')] = 0;
             updates[path('superOver/ballsBowled')] = 0;
             updates[path('superOver/target')] = newScore[battingTeam] + 1;

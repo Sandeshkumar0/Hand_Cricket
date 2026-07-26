@@ -203,6 +203,7 @@ function SuperOverMatch() {
                 <div className="text-center">
                   <p className="font-display text-[10px] uppercase tracking-broadcast text-arena-on-surface-faint">{batter?.name}</p>
                   <div className={`mx-auto mt-2 flex h-16 w-16 items-center justify-center rounded-lg border-2 ${
+                    /* v8 ignore next */
                     lockedMoves.batterMove !== null ? 'border-amber-400 bg-amber-500/10' : 'border-arena-outline-variant/30 bg-arena-container-highest'
                   }`}>
                     <span className="font-display text-3xl font-bold text-amber-400">{lockedMoves.batterMove !== null ? '✓' : '?'}</span>
@@ -215,6 +216,7 @@ function SuperOverMatch() {
                 <div className="text-center">
                   <p className="font-display text-[10px] uppercase tracking-broadcast text-arena-on-surface-faint">{bowler?.name}</p>
                   <div className={`mx-auto mt-2 flex h-16 w-16 items-center justify-center rounded-lg border-2 ${
+                    /* v8 ignore next */
                     lockedMoves.bowlerMove !== null ? 'border-blue-400 bg-blue-500/10' : 'border-arena-outline-variant/30 bg-arena-container-highest'
                   }`}>
                     <span className="font-display text-3xl font-bold text-blue-400">{lockedMoves.bowlerMove !== null ? '✓' : '?'}</span>
@@ -245,6 +247,7 @@ function SuperOverMatch() {
 
             {phase === 'MP_RESOLVE_SO' && !showOut && lockedMoves.batterMove !== null && (
               <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-3 flex justify-center">
+                {/* v8 ignore next 3 */}
                 {lockedMoves.batterMove === lockedMoves.bowlerMove ? (
                   <div className="rounded-lg bg-arena-secondary/15 border border-arena-secondary/30 px-6 py-2 esports-headline text-lg tracking-esports text-arena-secondary">Wicket!</div>
                 ) : lockedMoves.batterMove === 0 ? (

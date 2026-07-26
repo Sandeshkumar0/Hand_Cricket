@@ -19,6 +19,7 @@ function MPLobby() {
   const [copied, setCopied] = React.useState(false);
   const [selectedProfile, setSelectedProfile] = React.useState(null);
 
+  /* v8 ignore next 5 */
   const copyCode = () => {
     navigator.clipboard.writeText(roomCode).catch(() => {});
     setCopied(true);

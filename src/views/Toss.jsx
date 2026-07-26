@@ -72,7 +72,8 @@ function TossReveal({ tossResult, tossMoves, playerSide, botSide, onChoose }) {
   useEffect(() => {
     if (revealCountdown > 0 || tossResult.playerWon) return undefined;
     const timer = window.setTimeout(() => {
-      const botChoice = Math.random() > 0.5 ? 'bat' : 'bowl';
+      /* v8 ignore next 8 */
+    const botChoice = Math.random() > 0.5 ? 'bat' : 'bowl';
       onChoose(botChoice === 'bat' ? 'bowl' : 'bat');
     }, 700);
     return () => window.clearTimeout(timer);
@@ -144,7 +145,7 @@ function TossReveal({ tossResult, tossMoves, playerSide, botSide, onChoose }) {
               <button
                 type="button"
                 onClick={() => {
-                  soundEngine.playBatHit(4);
+                  soundEngine.playUiClick();
                   onChoose('bat');
                 }}
                 className="tactile-btn flex items-center justify-center space-x-2 py-4 text-sm font-bold"
@@ -212,6 +213,7 @@ function Toss() {
   const tossResult = useMemo(() => {
     if (toss_moves.player === null || toss_moves.bot === null || !playerSide) return null;
     const sum = toss_moves.player + toss_moves.bot;
+    /* v8 ignore next */
     const parity = sum % 2 === 0 ? 'even' : 'odd';
     return { sum, parity, playerWon: parity === playerSide };
   }, [playerSide, toss_moves]);

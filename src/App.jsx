@@ -24,6 +24,7 @@ import MPMatch from './views/multiplayer/MPMatch';
 import SuperOverSetup from './views/multiplayer/SuperOverSetup';
 import SuperOverReveal from './views/multiplayer/SuperOverReveal';
 import SuperOverMatch from './views/multiplayer/SuperOverMatch';
+import MPSeriesResult from './views/multiplayer/MPSeriesResult';
 import TeamChatWidget from './views/multiplayer/TeamChatWidget';
 import PlayerProfileModal from './components/PlayerProfileModal';
 import AuthModal from './components/AuthModal';
@@ -219,7 +220,7 @@ function App() {
   };
 
   const viewKey = getViewKey();
-  const showNavbar = viewKey !== 'MAIN_MENU' && viewKey !== 'MP_GATEWAY';
+  const showNavbar = true;
 
   return (
     <div className="relative flex min-h-[100dvh] w-full flex-col bg-[#040711] text-slate-100 font-sans">
@@ -259,17 +260,19 @@ function App() {
                 <span className="hidden sm:inline">{isMuted ? 'MUTED' : 'AUDIO ON'}</span>
               </button>
 
-              <button
-                type="button"
-                onClick={() => {
-                  soundEngine.playUiClick();
-                  setProfileModalOpen(true);
-                }}
-                className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-blue-500/20 border border-blue-400/30 text-xs font-mono font-bold text-blue-300 hover:bg-blue-500/30 transition"
-              >
-                <User size={14} />
-                <span>PROFILE STATS</span>
-              </button>
+              {currentUser && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    soundEngine.playUiClick();
+                    setProfileModalOpen(true);
+                  }}
+                  className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-blue-500/20 border border-blue-400/30 text-xs font-mono font-bold text-blue-300 hover:bg-blue-500/30 transition"
+                >
+                  <User size={14} />
+                  <span>PROFILE STATS</span>
+                </button>
+              )}
 
               <button
                 type="button"
@@ -339,78 +342,5 @@ function App() {
   );
 }
 
-/* ─── Multiplayer Series Result ─── */
-function MPSeriesResult() {
-  const { state, dispatch } = useMultiplayer();
-  const { seriesScores, matchResults, seriesWinner, settings, players, captains, currentPlayerId, hostId } = state;
-  const isHost = currentPlayerId === hostId;
-
-  const winnerLabel = seriesWinner === 'teamA' ? 'Team A' : 'Team B';
-
-  return (
-    <div className="relative flex flex-1 flex-col items-center overflow-y-auto bg-[#040711] px-4 pb-8 pt-6">
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="relative z-10 w-full max-w-lg mt-4 text-center">
-        <span className="px-3 py-1 rounded-full bg-slate-900 border border-white/10 text-xs font-mono font-bold text-slate-300 uppercase">
-          MULTIPLAYER SERIES: {seriesScores.teamA} - {seriesScores.teamB}
-        </span>
-        <h2 className="esports-headline mt-3 text-4xl sm:text-5xl font-black text-white">
-          🏆 {winnerLabel.toUpperCase()} WINS SERIES!
-        </h2>
-
-        <div className="mt-8 apple-glass-card rounded-2xl p-6 border border-white/10">
-          <div className="grid grid-cols-2 gap-4 border-b border-white/10 pb-6">
-            <div>
-              <p className="font-mono text-xs font-bold text-blue-400 uppercase">TEAM A</p>
-              <p className="mt-2 font-mono text-5xl font-black text-white">{seriesScores.teamA}</p>
-            </div>
-            <div>
-              <p className="font-mono text-xs font-bold text-amber-400 uppercase">TEAM B</p>
-              <p className="mt-2 font-mono text-5xl font-black text-white">{seriesScores.teamB}</p>
-            </div>
-          </div>
-
-          <div className="pt-6 text-left">
-            <h4 className="font-mono text-xs font-bold uppercase tracking-widest text-slate-400 mb-3">MATCH BREAKDOWN</h4>
-            <div className="space-y-2.5">
-              {matchResults.map((match) => (
-                <div key={match.matchNumber} className="flex items-center justify-between p-3.5 rounded-xl bg-slate-900/80 border border-white/5 font-mono text-xs">
-                  <div>
-                    <span className="text-slate-500">MATCH {match.matchNumber}</span>
-                    <p className={match.winner === 'teamA' ? 'text-blue-400 font-bold' : 'text-amber-400 font-bold'}>
-                      {match.winner === 'teamA' ? 'TEAM A WON' : 'TEAM B WON'}
-                    </p>
-                  </div>
-                  <div className="text-right text-slate-300">
-                    <div>{match.teamAScore}</div>
-                    <div className="text-slate-500">{match.teamBScore}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-6 flex flex-col gap-3">
-          {isHost ? (
-            <button
-              type="button"
-              onClick={() => {
-                soundEngine.playUiClick();
-                dispatch({ type: 'MP_RESET' });
-              }}
-              className="tactile-btn w-full py-4 text-base font-black tracking-wider"
-            >
-              START NEW MULTIPLAYER SERIES
-            </button>
-          ) : (
-            <div className="rounded-xl border border-white/10 bg-slate-900 p-4 text-xs font-mono text-slate-400">
-              WAITING FOR HOST TO START NEW SERIES...
-            </div>
-          )}
-        </div>
-      </motion.div>
-    </div>
-  );
-}
 
 export default App;
