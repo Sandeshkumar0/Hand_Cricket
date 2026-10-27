@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { auth, db } from '../firebase';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile } from 'firebase/auth';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { ref, get, set } from 'firebase/database';
 import { loadAllCareerStats, saveAllCareerStats } from '../utils/statsStorage';
 
@@ -54,10 +54,17 @@ export function AuthProvider({ children }) {
   const login = (email, password) => signInWithEmailAndPassword(auth, email, password);
   const logout = () => signOut(auth);
 
+  const googleLogin = async () => {
+    const provider = new GoogleAuthProvider();
+    const result = await signInWithPopup(auth, provider);
+    return result;
+  };
+
   const value = {
     currentUser,
     signup,
     login,
+    googleLogin,
     logout
   };
 

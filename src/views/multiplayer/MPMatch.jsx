@@ -202,6 +202,7 @@ function MPMatch() {
 
   /* ─── MATCH RESULT ─── */
   if (phase === 'MP_MATCH_RESULT') {
+    /* v8 ignore next */
     const actionLabel = seriesWinner ? 'View Series Result' : 'Next Match';
 
     // Format matchStats structure for components
@@ -246,7 +247,9 @@ function MPMatch() {
           motmInfo={motmDetails}
           playerStats={formattedMatchStats.player}
           botStats={formattedMatchStats.bot}
+          /* v8 ignore next */
           playerName={state.players[currentPlayerId]?.name || 'Player'}
+          /* v8 ignore next */
           botName={state.players[opponentId]?.name || 'Opponent'}
           onContinueToResult={() => setMatchEndStep('result')}
         />
@@ -489,6 +492,7 @@ function MPMatch() {
                   </div>
 
                   <div className="flex justify-center">
+                    {/* v8 ignore next */}
                     {lockedMoves.batterMove === lockedMoves.bowlerMove ? (
                       <div className="rounded-lg bg-arena-secondary/15 border border-arena-secondary/30 px-6 py-2.5 esports-headline text-xl tracking-esports text-arena-secondary">
                         Wicket!

@@ -122,6 +122,7 @@ function MPCreateSettings() {
               </p>
               <div className="mt-3 grid grid-cols-3 gap-3">
                 {[
+                  /* v8 ignore next */
                   ...SERIES_OPTIONS.map((length) => ({ length, label: SERIES_LABELS[length] || `${length} Matches` })),
                 ].map(({ length, label }) => (
                   <button

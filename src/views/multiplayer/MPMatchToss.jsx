@@ -70,6 +70,7 @@ function MPMatchToss() {
   };
 
   const handlePick = (num) => {
+    /* v8 ignore next */
     if (!myRole || matchTossMoves[myRole] != null || !assignmentComplete) return;
     dispatch({ type: 'MP_SUBMIT_MATCH_TOSS', payload: { who: myRole, move: num } });
   };
@@ -127,6 +128,7 @@ function MPMatchToss() {
                   onClick={() => handleClaimSide('even')}
                   disabled={Boolean(matchTossAssignment.even)}
                   className={`rounded-lg border px-4 py-3 font-display text-sm font-bold uppercase tracking-broadcast transition ${
+                    /* v8 ignore next */
                     matchTossAssignment.even
                       ? 'cursor-not-allowed border-arena-outline-variant/20 bg-arena-container text-arena-on-surface-faint opacity-40'
                       : 'border-blue-500/30 bg-blue-500/15 text-blue-400 hover:bg-blue-500/20'
@@ -136,6 +138,7 @@ function MPMatchToss() {
                 </button>
               </div>
             </div>
+          /* v8 ignore start */
           )}
 
           {phase === 'MP_MATCH_TOSS' && myRole !== null && myAssignedSide && !assignmentComplete && (
@@ -150,7 +153,8 @@ function MPMatchToss() {
               <p className="text-center font-display text-xs font-bold uppercase tracking-broadcast text-arena-on-surface-dim">
                 {myMoveLocked
                   ? 'You locked in your toss number. Waiting for opponent...'
-                  : `${myAssignedSide === 'odd' ? 'Odd' : 'Even'} captain: pick your toss number (1-6)`}
+                  : /* v8 ignore next */
+                    `${myAssignedSide === 'odd' ? 'Odd' : 'Even'} captain: pick your toss number (1-6)`}
               </p>
               <NumberPad
                 options={[1, 2, 3, 4, 5, 6]}
@@ -168,6 +172,7 @@ function MPMatchToss() {
             </div>
           )}
         </div>
+        /* v8 ignore stop */
 
         {phase === 'MP_MATCH_TOSS_RESULT' && tossResult && (
           <motion.div

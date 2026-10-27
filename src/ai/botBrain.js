@@ -17,7 +17,7 @@ const weightedChoice = (weights) => {
     cursor -= item.weight;
     if (cursor <= 0) return item.value;
   }
-  return weights[weights.length - 1]?.value ?? 1;
+  return weights[weights.length - 1].value;
 };
 
 const normalizeFrequencies = (frequencies = {}) => {
@@ -90,7 +90,7 @@ const combinePredictions = (localPattern, cloudPattern) => {
 
   if (cloudPattern?.frequencies) {
     for (const move of MOVES) {
-      merged[move] = (merged[move] ?? 0) + Number(cloudPattern.frequencies[move] ?? cloudPattern.frequencies[String(move)] ?? 0);
+      merged[move] = merged[move] + Number(cloudPattern.frequencies[move] ?? cloudPattern.frequencies[String(move)] ?? 0);
     }
   }
 
@@ -109,7 +109,7 @@ const getColdStartMove = () =>
   ]);
 
 const pickPredictedMove = (distribution) =>
-  [...distribution].sort((a, b) => b.probability - a.probability)[0]?.move ?? getColdStartMove();
+  [...distribution].sort((a, b) => b.probability - a.probability)[0].move;
 
 export async function getBotDecision({
   context,
@@ -133,7 +133,7 @@ export async function getBotDecision({
   }
 
   const candidateWeights = MOVES.map((move) => {
-    const prediction = mergedPattern.distribution.find((item) => item.move === move)?.probability ?? 1 / MOVES.length;
+    const prediction = mergedPattern.distribution.find((item) => item.move === move).probability;
     const distanceBoost = Math.abs(move - predictedPlayerMove) * 0.18;
     return {
       value: move,

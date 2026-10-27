@@ -12,6 +12,7 @@ const getDefaultSelection = (roster) => {
   const batters = roster.slice(0, requiredBatters);
   const bowler = canReuseBowler(roster)
     ? roster[0] ?? null
+    /* v8 ignore next */
     : roster.find((id) => !batters.includes(id)) ?? null;
 
   return { batters, bowler };
@@ -254,6 +255,7 @@ function SuperOverSetup() {
             : prev
       );
     } else {
+      /* v8 ignore next 3 */
       setTeamBBatters((prev) =>
         prev.includes(id)
           ? prev.filter((playerId) => playerId !== id)

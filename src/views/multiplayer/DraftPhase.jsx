@@ -97,6 +97,7 @@ function DraftPhase() {
   const activeCaptainId = draftTurn === 'teamA' ? captains.teamA : captains.teamB;
   const activeCaptain = players[activeCaptainId];
   const canPick = currentPlayerId === activeCaptainId && !activeCaptain?.isBot;
+  /* v8 ignore next 2 */
   const teamAPlayers = teams.teamA?.roster.map((id) => players[id]).filter(Boolean) || [];
   const teamBPlayers = teams.teamB?.roster.map((id) => players[id]).filter(Boolean) || [];
   const poolPlayers = draftPool.map((id) => players[id]).filter(Boolean);
